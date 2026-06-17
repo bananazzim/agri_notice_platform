@@ -1,0 +1,25 @@
+[Agri Notice] 관심 키워드 공고 알림
+
+관심 키워드: {{ matched_keywords|join:", " }}
+
+{{ notice.title }}
+
+기관: {{ notice.agency.name }}
+분류: {{ notice.get_category_display }}
+등록일: {{ notice.posted_date|date:"Y-m-d" }}
+마감일: {% if notice.deadline %}{{ notice.deadline|date:"Y-m-d" }}{% else %}상시/미정{% endif %}
+추천도: {{ notice.importance_score }}
+
+{% if notice.ai_summary %}
+AI 요약:
+{{ notice.ai_summary }}
+{% elif notice.summary %}
+요약:
+{{ notice.summary|truncatechars:400 }}
+{% endif %}
+
+상세 보기:
+{{ notice_url }}
+
+원문:
+{{ notice.url }}

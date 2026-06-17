@@ -10,6 +10,8 @@ from .models import (
     Agency,
     CrawlerLog,
     CrawlerStatus,
+    EmailNotificationLog,
+    EmailSubscription,
     Favorite,
     Notice,
     WatchAgency,
@@ -381,6 +383,38 @@ class WatchAgencyAdmin(admin.ModelAdmin):
     search_fields = ("user__username", "user__email", "agency__name", "agency__code")
     raw_id_fields = ("user", "agency")
     readonly_fields = ("created_at",)
+
+
+@admin.register(EmailSubscription)
+class EmailSubscriptionAdmin(admin.ModelAdmin):
+    list_display = ("email", "keywords", "is_active", "last_sent_at", "created_at")
+    list_filter = ("is_active", "created_at", "last_sent_at", "agencies")
+    search_fields = ("email", "keywords", "agencies__name", "agencies__code")
+    filter_horizontal = ("agencies",)
+    readonly_fields = ("last_sent_at", "created_at", "updated_at")
+    actions = ("activate_subscriptions", "deactivate_subscriptions")
+
+    @admin.action(description="Activate selected subscriptions")
+    def activate_subscriptions(self, request, queryset):
+        count = queryset.update(is_active=True)
+        self.message_user(request, f"Activated {count} subscriptions.", level=messages.SUCCESS)
+
+    @admin.action(description="Deactivate selected subscriptions")
+    def deactivate_subscriptions(self, request, queryset):
+        count = queryset.update(is_active=False)
+        self.message_user(request, f"Deactivated {count} subscriptions.", level=messages.WARNING)
+
+
+@admin.register(EmailNotificationLog)
+class EmailNotificationLogAdmin(admin.ModelAdmin):
+    list_display = ("created_at", "subscription", "notice", "status", "sent_at")
+    list_filter = ("status", "created_at", "sent_at", "notice__agency")
+    search_fields = ("subscription__email", "notice__title", "matched_keywords", "error_message")
+    raw_id_fields = ("subscription", "notice")
+    readonly_fields = ("subscription", "notice", "status", "matched_keywords", "error_message", "sent_at", "created_at")
+
+    def has_add_permission(self, request):
+        return False
 
 
 class NoticeInline(admin.TabularInline):

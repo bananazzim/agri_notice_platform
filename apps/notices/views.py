@@ -2,9 +2,13 @@ from __future__ import annotations
 
 from typing import Any
 
+from django.contrib import messages
+from django.db import IntegrityError, transaction
 from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404
+from django.urls import reverse_lazy
 from django.views.generic import DetailView, ListView, TemplateView
+from django.views.generic.edit import FormView
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import generics, status
 from rest_framework.decorators import api_view
@@ -15,7 +19,8 @@ from services.ai_service import NoticeAIService
 
 from .constants import EXCLUDED_NOTICE_CATEGORIES, VISIBLE_NOTICE_CATEGORIES
 from .filters import AgencyFilter, NoticeFilter
-from .models import Agency, CrawlerLog, CrawlerStatus, Notice
+from .forms import EmailSubscriptionForm
+from .models import Agency, CrawlerLog, CrawlerStatus, EmailSubscription, Notice
 from .serializers import (
     AgencySerializer,
     CrawlerLogSerializer,
@@ -175,6 +180,35 @@ class NoticeStatsView(TemplateView):
             }
         )
         return context
+
+
+class EmailSubscriptionCreateView(FormView):
+    template_name = "notices/email_subscription_form.html"
+    form_class = EmailSubscriptionForm
+    success_url = reverse_lazy("notices:email_subscription")
+
+    def form_valid(self, form):
+        agencies = form.cleaned_data.pop("agencies")
+        try:
+            with transaction.atomic():
+                subscription, created = EmailSubscription.objects.get_or_create(
+                    email=form.cleaned_data["email"],
+                    keywords=form.cleaned_data["keywords"],
+                    defaults={"is_active": True},
+                )
+                if not created and not subscription.is_active:
+                    subscription.is_active = True
+                    subscription.save(update_fields=["is_active", "updated_at"])
+                subscription.agencies.set(agencies)
+        except IntegrityError:
+            form.add_error(None, "이미 등록된 알림입니다.")
+            return self.form_invalid(form)
+
+        messages.success(
+            self.request,
+            "이메일 알림이 등록되었습니다. 새 공고가 키워드와 매칭되면 발송됩니다.",
+        )
+        return super().form_valid(form)
 
 
 class NoticeListAPIView(generics.ListAPIView):

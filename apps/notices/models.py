@@ -334,3 +334,83 @@ class WatchAgency(models.Model):
 
     def __str__(self) -> str:
         return f"{self.user_id}: {self.agency.code}"
+
+
+class EmailSubscription(models.Model):
+    email = models.EmailField()
+    keywords = models.CharField(
+        max_length=500,
+        help_text="Comma-separated keywords. Example: smartfarm, startup, youth farmer",
+    )
+    agencies = models.ManyToManyField(Agency, blank=True, related_name="email_subscriptions")
+    categories = models.JSONField(default=list, blank=True)
+    is_active = models.BooleanField(default=True)
+    last_sent_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        constraints = [
+            models.UniqueConstraint(fields=["email", "keywords"], name="uniq_email_subscription_keywords"),
+        ]
+        indexes = [
+            models.Index(fields=["email", "is_active"], name="email_sub_email_active_idx"),
+            models.Index(fields=["is_active", "-created_at"], name="email_sub_active_created_idx"),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.email}: {self.keywords}"
+
+    @property
+    def keyword_list(self) -> list[str]:
+        return [
+            keyword.strip().lower()
+            for keyword in self.keywords.replace("\n", ",").split(",")
+            if keyword.strip()
+        ]
+
+
+class EmailNotificationLog(models.Model):
+    STATUS_PENDING = "pending"
+    STATUS_SENT = "sent"
+    STATUS_FAILED = "failed"
+
+    STATUS_CHOICES = [
+        (STATUS_PENDING, "Pending"),
+        (STATUS_SENT, "Sent"),
+        (STATUS_FAILED, "Failed"),
+    ]
+
+    subscription = models.ForeignKey(
+        EmailSubscription,
+        on_delete=models.CASCADE,
+        related_name="notification_logs",
+    )
+    notice = models.ForeignKey(
+        Notice,
+        on_delete=models.CASCADE,
+        related_name="email_notification_logs",
+    )
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_PENDING)
+    matched_keywords = models.JSONField(default=list, blank=True)
+    error_message = models.TextField(blank=True)
+    sent_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["subscription", "notice"],
+                name="uniq_subscription_notice_email_log",
+            ),
+        ]
+        indexes = [
+            models.Index(fields=["subscription", "status"], name="email_log_sub_status_idx"),
+            models.Index(fields=["notice", "status"], name="email_log_notice_status_idx"),
+            models.Index(fields=["-created_at"], name="email_log_created_idx"),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.subscription.email} -> {self.notice_id} ({self.status})"

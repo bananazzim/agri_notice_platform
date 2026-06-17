@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <title>Agri Notice 알림</title>
+</head>
+<body style="margin:0;padding:0;background:#f6f8f5;font-family:Arial,'Malgun Gothic',sans-serif;color:#172019;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f6f8f5;padding:24px 0;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="640" cellpadding="0" cellspacing="0" style="max-width:640px;width:100%;background:#ffffff;border:1px solid #dce6dc;border-radius:8px;overflow:hidden;">
+          <tr>
+            <td style="background:#2e7d32;color:#ffffff;padding:18px 22px;">
+              <div style="font-size:13px;opacity:.9;">Agri Notice keyword alert</div>
+              <h1 style="font-size:22px;line-height:1.35;margin:8px 0 0;">{{ notice.title }}</h1>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:20px 22px;">
+              <p style="margin:0 0 14px;color:#66746a;font-size:14px;">
+                관심 키워드 <strong style="color:#2e7d32;">{{ matched_keywords|join:", " }}</strong>와 매칭된 새 공고입니다.
+              </p>
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:14px 0 18px;">
+                <tr>
+                  <td style="padding:8px 0;color:#66746a;width:90px;">기관</td>
+                  <td style="padding:8px 0;font-weight:700;">{{ notice.agency.name }}</td>
+                </tr>
+                <tr>
+                  <td style="padding:8px 0;color:#66746a;">분류</td>
+                  <td style="padding:8px 0;">{{ notice.get_category_display }}</td>
+                </tr>
+                <tr>
+                  <td style="padding:8px 0;color:#66746a;">등록일</td>
+                  <td style="padding:8px 0;">{{ notice.posted_date|date:"Y-m-d" }}</td>
+                </tr>
+                <tr>
+                  <td style="padding:8px 0;color:#66746a;">마감일</td>
+                  <td style="padding:8px 0;">{% if notice.deadline %}{{ notice.deadline|date:"Y-m-d" }}{% else %}상시/미정{% endif %}</td>
+                </tr>
+                <tr>
+                  <td style="padding:8px 0;color:#66746a;">추천도</td>
+                  <td style="padding:8px 0;">{{ notice.importance_score }}</td>
+                </tr>
+              </table>
+              {% if notice.ai_summary %}
+                <div style="background:#f1f8f2;border-left:4px solid #2e7d32;border-radius:8px;padding:14px 16px;line-height:1.7;margin-bottom:18px;">
+                  {{ notice.ai_summary|linebreaksbr }}
+                </div>
+              {% elif notice.summary %}
+                <div style="background:#f7faf7;border-radius:8px;padding:14px 16px;line-height:1.7;margin-bottom:18px;">
+                  {{ notice.summary|truncatechars:400 }}
+                </div>
+              {% endif %}
+              <p style="margin:0 0 14px;">
+                <a href="{{ notice_url }}" style="display:inline-block;background:#2e7d32;color:#ffffff;text-decoration:none;border-radius:8px;padding:11px 16px;font-weight:700;">사이트에서 보기</a>
+              </p>
+              <p style="margin:0;color:#66746a;font-size:13px;word-break:break-all;">
+                원문: <a href="{{ notice.url }}" style="color:#2e7d32;">{{ notice.url }}</a>
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

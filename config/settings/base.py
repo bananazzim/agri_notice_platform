@@ -268,7 +268,7 @@ AI_CONFIG = {
 # Notification settings (향후 확장)
 NOTIFICATION_CONFIG = {
     'email': {
-        'enabled': env('EMAIL_ENABLED', default=False),
+        'enabled': env.bool('EMAIL_ENABLED', default=False),
         'from_email': env('EMAIL_FROM', default='noreply@example.com'),
     },
     'telegram': {
@@ -280,3 +280,5 @@ NOTIFICATION_CONFIG = {
         'api_key': env('KAKAO_API_KEY', default=''),
     },
 }
+SITE_URL = env('SITE_URL', default='http://127.0.0.1:8000')
+DEFAULT_FROM_EMAIL = NOTIFICATION_CONFIG['email']['from_email']

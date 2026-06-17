@@ -8,6 +8,7 @@ urlpatterns = [
     path("", views.NoticeListView.as_view(), name="notice_list"),
     path("deadline-soon/", views.DeadlineSoonNoticeListView.as_view(), name="deadline_soon"),
     path("stats/", views.NoticeStatsView.as_view(), name="stats"),
+    path("alerts/email/", views.EmailSubscriptionCreateView.as_view(), name="email_subscription"),
     path("<uuid:pk>/", views.NoticeDetailView.as_view(), name="notice_detail"),
     path("api/notices/", views.NoticeListAPIView.as_view(), name="api_notice_list"),
     path("api/notices/<uuid:pk>/", views.NoticeDetailAPIView.as_view(), name="api_notice_detail"),
