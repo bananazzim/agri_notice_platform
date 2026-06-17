@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}마감임박 공고 | Agri Notice{% endblock %}
+
+{% block content %}
+  <section class="page-header">
+    <div>
+      <p class="hero-kicker">Deadline Watch</p>
+      <h1>마감이 가까운 공고</h1>
+      <p>{{ page_obj.paginator.count|default:0 }}건이 마감임박 상태입니다.</p>
+    </div>
+    <a class="btn btn-outline-secondary" href="{% url 'notices:notice_list' %}">
+      <i class="bi bi-collection me-1"></i>전체 공고
+    </a>
+  </section>
+
+  {% include "notices/_filters.html" %}
+
+  <div class="section-heading">
+    <div>
+      <h2>마감임박 목록</h2>
+      <p>오늘 기준 7일 이내 마감되는 공고입니다.</p>
+    </div>
+  </div>
+
+  {% include "notices/_notice_table.html" %}
+{% endblock %}

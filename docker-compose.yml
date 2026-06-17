@@ -1,0 +1,153 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: agri_notice_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-agri_notice}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      TZ: Asia/Seoul
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "${DB_PORT_HOST:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-agri_notice}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - agri_network
+
+  redis:
+    image: redis:7-alpine
+    container_name: agri_notice_redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-redis}
+    volumes:
+      - redis_data:/data
+    ports:
+      - "${REDIS_PORT_HOST:-6379}:6379"
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a ${REDIS_PASSWORD:-redis} ping | grep PONG"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - agri_network
+
+  web:
+    build: .
+    container_name: agri_notice_web
+    restart: unless-stopped
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py collectstatic --noinput &&
+             gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers ${WEB_CONCURRENCY:-4} --timeout 60"
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings.production
+      DEBUG: ${DEBUG:-False}
+      SECRET_KEY: ${SECRET_KEY:-django-insecure-change-me}
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS:-localhost,127.0.0.1}
+      DB_NAME: ${DB_NAME:-agri_notice}
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_SSLMODE: disable
+      REDIS_URL: redis://:${REDIS_PASSWORD:-redis}@redis:6379/1
+      SECURE_SSL_REDIRECT: ${SECURE_SSL_REDIRECT:-False}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4.1-mini}
+      BIZINFO_API_KEY: ${BIZINFO_API_KEY:-}
+      KSTARTUP_API_KEY: ${KSTARTUP_API_KEY:-}
+      DATA_GO_KR_API_KEY: ${DATA_GO_KR_API_KEY:-}
+      NOTICE_CRAWL_HOUR: ${NOTICE_CRAWL_HOUR:-9}
+      NOTICE_CRAWL_MINUTE: ${NOTICE_CRAWL_MINUTE:-0}
+      NOTICE_CRAWL_TIMEZONE: ${NOTICE_CRAWL_TIMEZONE:-Asia/Seoul}
+    volumes:
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+      - logs_volume:/app/logs
+    ports:
+      - "${WEB_PORT_HOST:-8000}:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/', timeout=5).read()\""]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - agri_network
+
+  scheduler:
+    build: .
+    container_name: agri_notice_scheduler
+    restart: unless-stopped
+    command: python manage.py start_scheduler
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings.production
+      DEBUG: ${DEBUG:-False}
+      SECRET_KEY: ${SECRET_KEY:-django-insecure-change-me}
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS:-localhost,127.0.0.1}
+      DB_NAME: ${DB_NAME:-agri_notice}
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_SSLMODE: disable
+      REDIS_URL: redis://:${REDIS_PASSWORD:-redis}@redis:6379/1
+      SECURE_SSL_REDIRECT: ${SECURE_SSL_REDIRECT:-False}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4.1-mini}
+      BIZINFO_API_KEY: ${BIZINFO_API_KEY:-}
+      KSTARTUP_API_KEY: ${KSTARTUP_API_KEY:-}
+      DATA_GO_KR_API_KEY: ${DATA_GO_KR_API_KEY:-}
+      NOTICE_CRAWL_HOUR: ${NOTICE_CRAWL_HOUR:-9}
+      NOTICE_CRAWL_MINUTE: ${NOTICE_CRAWL_MINUTE:-0}
+      NOTICE_CRAWL_TIMEZONE: ${NOTICE_CRAWL_TIMEZONE:-Asia/Seoul}
+    volumes:
+      - logs_volume:/app/logs
+    depends_on:
+      web:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - agri_network
+
+  nginx:
+    image: nginx:alpine
+    container_name: agri_notice_nginx
+    restart: unless-stopped
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - static_volume:/app/staticfiles:ro
+      - media_volume:/app/media:ro
+    ports:
+      - "${NGINX_HTTP_PORT:-80}:80"
+      - "${NGINX_HTTPS_PORT:-443}:443"
+    depends_on:
+      web:
+        condition: service_healthy
+    networks:
+      - agri_network
+
+volumes:
+  postgres_data:
+  redis_data:
+  static_volume:
+  media_volume:
+  logs_volume:
+
+networks:
+  agri_network:
+    driver: bridge

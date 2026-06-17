@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block title %}통계 | Agri Notice{% endblock %}
+
+{% block content %}
+  <section class="page-header">
+    <div>
+      <p class="hero-kicker">Operations</p>
+      <h1>수집 현황</h1>
+      <p>기관별 공고 수와 최근 크롤링 로그를 확인합니다.</p>
+    </div>
+  </section>
+
+  <section class="stats-grid">
+    <div class="metric-panel">
+      <span>전체 공고</span>
+      <strong>{{ total_notices }}</strong>
+    </div>
+    <div class="metric-panel">
+      <span>마감임박</span>
+      <strong>{{ deadline_soon_count }}</strong>
+    </div>
+    <div class="metric-panel">
+      <span>활성 기관</span>
+      <strong>{{ agency_count }}</strong>
+    </div>
+  </section>
+
+  <div class="row g-3 mt-1">
+    <div class="col-12 col-xl-6">
+      <section class="content-panel h-100">
+        <h2 class="panel-title">기관별 공고</h2>
+        <div class="list-group list-group-flush">
+          {% for agency in agency_stats %}
+            <div class="list-group-item d-flex justify-content-between px-0">
+              <span>{{ agency.name }}</span>
+              <strong>{{ agency.notice_count }}</strong>
+            </div>
+          {% empty %}
+            <div class="text-secondary">데이터 없음</div>
+          {% endfor %}
+        </div>
+      </section>
+    </div>
+    <div class="col-12 col-xl-6">
+      <section class="content-panel h-100">
+        <h2 class="panel-title">카테고리</h2>
+        <div class="list-group list-group-flush">
+          {% for row in category_stats %}
+            <div class="list-group-item d-flex justify-content-between px-0">
+              <span>{{ row.category }}</span>
+              <strong>{{ row.count }}</strong>
+            </div>
+          {% empty %}
+            <div class="text-secondary">데이터 없음</div>
+          {% endfor %}
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <section class="content-panel mt-3">
+    <h2 class="panel-title">최근 크롤링 로그</h2>
+    <div class="table-responsive">
+      <table class="table table-sm align-middle mb-0">
+        <thead>
+          <tr>
+            <th>기관</th>
+            <th>상태</th>
+            <th class="text-end">수집</th>
+            <th class="text-end">저장</th>
+            <th>시간</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for log in recent_logs %}
+            <tr>
+              <td>{{ log.agency.name }}</td>
+              <td><span class="badge text-bg-light">{{ log.status }}</span></td>
+              <td class="text-end">{{ log.notices_collected }}</td>
+              <td class="text-end">{{ log.notices_saved }}</td>
+              <td>{{ log.created_at|date:"Y-m-d H:i" }}</td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="5" class="text-center text-secondary py-4">로그 없음</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+{% endblock %}

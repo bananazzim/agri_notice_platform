@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}최신 공고 | Agri Notice{% endblock %}
+
+{% block content %}
+  {% load static %}
+  {% static 'img/agritech-hero.png' as hero_image %}
+  {% static 'media/agritech-hero-loop.webp' as hero_motion %}
+  <section class="dashboard-hero motion-reveal" style="--hero-image: url('{{ hero_image }}?v=20260617-4');">
+    <img class="hero-motion-media" src="{{ hero_motion }}?v=20260617-1" alt="" aria-hidden="true">
+    <div class="hero-data-layer" aria-hidden="true">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+    <div class="hero-content">
+      <p class="hero-kicker">AgriTech Dashboard</p>
+      <h1>스마트팜과 농산업 기회를 놓치지 않는 대시보드</h1>
+      <p class="hero-copy">지원사업, 창업, 교육, 경진대회 공고를 한 화면에서 빠르게 탐색하세요.</p>
+      <div class="hero-actions">
+        <a class="btn btn-light" href="#notice-search">
+          <i class="bi bi-search me-1"></i>공고 검색
+        </a>
+        <a class="btn btn-hero-outline" href="{% url 'notices:deadline_soon' %}">
+          <i class="bi bi-clock-history me-1"></i>마감임박
+        </a>
+      </div>
+      <div class="hero-command-strip" aria-label="빠른 탐색">
+        <a href="?tag=smart_farm&ordering=importance"><i class="bi bi-cpu me-1"></i>Smart Farm</a>
+        <a href="?category=startup&ordering=importance"><i class="bi bi-rocket-takeoff me-1"></i>Startup</a>
+        <a href="?category=contest&ordering=deadline"><i class="bi bi-trophy me-1"></i>Contest</a>
+        <a href="?deadline_soon=true&ordering=deadline"><i class="bi bi-alarm me-1"></i>Deadline</a>
+        <a href="?ordering=importance"><i class="bi bi-stars me-1"></i>Top Score</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="stats-grid mb-3" aria-label="공고 요약">
+    <div class="metric-panel">
+      <i class="bi bi-layers metric-icon"></i>
+      <span>전체 공고</span>
+      <strong data-count-to="{{ total_notices_count }}">{{ total_notices_count }}</strong>
+    </div>
+    <div class="metric-panel">
+      <i class="bi bi-alarm metric-icon"></i>
+      <span>마감임박</span>
+      <strong data-count-to="{{ deadline_soon_count }}">{{ deadline_soon_count }}</strong>
+    </div>
+    <div class="metric-panel">
+      <i class="bi bi-stars metric-icon"></i>
+      <span>추천도 70+</span>
+      <strong data-count-to="{{ recommended_count }}">{{ recommended_count }}</strong>
+    </div>
+    <div class="metric-panel">
+      <i class="bi bi-building-check metric-icon"></i>
+      <span>활성 기관</span>
+      <strong data-count-to="{{ agency_count }}">{{ agency_count }}</strong>
+    </div>
+  </section>
+
+  {% include "notices/_filters.html" %}
+
+  <div class="section-heading">
+    <div>
+      <h2>최신 공고</h2>
+      <p>{{ page_obj.paginator.count|default:0 }}건이 검색되었습니다.</p>
+    </div>
+  </div>
+
+  {% include "notices/_notice_table.html" %}
+{% endblock %}

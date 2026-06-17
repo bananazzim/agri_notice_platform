@@ -1,0 +1,83 @@
+<div class="notice-card-list">
+  {% for notice in notices %}
+    <article class="notice-card motion-reveal" data-href="{% url 'notices:notice_detail' notice.pk %}" tabindex="0">
+      <div class="notice-card-main">
+        <div class="notice-card-meta">
+          <span class="agency-pill">{{ notice.agency.name }}</span>
+          <span class="category-pill">{{ notice.get_category_display }}</span>
+          <span><i class="bi bi-calendar3 me-1"></i>{{ notice.posted_date|date:"Y-m-d" }}</span>
+        </div>
+
+        <h2 class="notice-card-title">
+          <a href="{% url 'notices:notice_detail' notice.pk %}">{{ notice.title }}</a>
+        </h2>
+
+        <div class="notice-card-tags">
+          {% for tag in notice.ai_tags|slice:":5" %}
+            <span class="tag-chip">{{ tag }}</span>
+          {% empty %}
+            <span class="tag-chip tag-chip-muted"><i class="bi bi-lightning-charge me-1"></i>AI 대기</span>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="notice-card-side">
+        <div class="score-box">
+          <span>추천도</span>
+          <strong>{{ notice.importance_score }}</strong>
+          <div class="score-meter" style="--score: {{ notice.importance_score|default:0 }}%"></div>
+        </div>
+        <div class="deadline-box {% if notice.is_deadline_soon %}deadline-hot{% endif %}">
+          <span>마감</span>
+          {% if notice.deadline %}
+            <strong>
+              {% if notice.days_to_deadline == 0 %}
+                D-day
+              {% elif notice.days_to_deadline > 0 %}
+                D-{{ notice.days_to_deadline }}
+              {% else %}
+                마감
+              {% endif %}
+            </strong>
+            <small>{{ notice.deadline|date:"Y-m-d" }}</small>
+          {% else %}
+            <strong>상시</strong>
+            <small>미정</small>
+          {% endif %}
+        </div>
+        <div class="notice-card-actions">
+          <a class="btn btn-outline-success btn-sm notice-detail-button" href="{% url 'notices:notice_detail' notice.pk %}">
+            상세<i class="bi bi-arrow-up-right ms-1"></i>
+          </a>
+          <a class="btn btn-light btn-sm notice-source-button" href="{{ notice.url }}" target="_blank" rel="noopener">
+            원문<i class="bi bi-box-arrow-up-right ms-1"></i>
+          </a>
+        </div>
+      </div>
+    </article>
+  {% empty %}
+    <div class="empty-state">
+      <i class="bi bi-inbox"></i>
+      <strong>조건에 맞는 공고가 없습니다.</strong>
+      <span>검색어나 필터를 조정해보세요.</span>
+    </div>
+  {% endfor %}
+</div>
+
+{% if is_paginated %}
+  <nav class="mt-3" aria-label="페이지">
+    <ul class="pagination justify-content-center mb-0">
+      {% if page_obj.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">이전</a></li>
+      {% else %}
+        <li class="page-item disabled"><span class="page-link">이전</span></li>
+      {% endif %}
+      <li class="page-item active"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
+      {% if page_obj.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">다음</a></li>
+      {% else %}
+        <li class="page-item disabled"><span class="page-link">다음</span></li>
+      {% endif %}
+    </ul>
+  </nav>
+{% endif %}

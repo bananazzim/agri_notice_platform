@@ -1,0 +1,26 @@
+# ========== Docker ==========
+.env
+.env.local
+*.log
+logs/
+media/
+staticfiles/
+htmlcov/
+.pytest_cache/
+.coverage
+db.sqlite3
+.venv/
+venv/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+*.sqlite3
+
+# IDE
+.vscode/
+.idea/
+*.swp

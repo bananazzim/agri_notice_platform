@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}{{ notice.title }} | Agri Notice{% endblock %}
+
+{% block content %}
+  {% load static %}
+  {% static 'img/agritech-hero.png' as hero_image %}
+  {% static 'media/agritech-hero-loop.webp' as hero_motion %}
+  <section class="detail-hero motion-reveal" style="--hero-image: url('{{ hero_image }}?v=20260617-4');">
+    <img class="hero-motion-media" src="{{ hero_motion }}?v=20260617-1" alt="" aria-hidden="true">
+    <div class="hero-data-layer" aria-hidden="true">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+    <div class="detail-hero-content">
+      <div class="detail-kicker">
+        <span>{{ notice.agency.name }}</span>
+        <span>{{ notice.get_category_display }}</span>
+      </div>
+      <h1 class="detail-title">{{ notice.title }}</h1>
+
+      <div class="detail-meta">
+        <span><i class="bi bi-calendar3 me-1"></i>등록 {{ notice.posted_date|date:"Y-m-d" }}</span>
+        <span>
+          <i class="bi bi-flag me-1"></i>
+          {% if notice.deadline %}마감 {{ notice.deadline|date:"Y-m-d" }}{% else %}상시/미정{% endif %}
+        </span>
+        <span><i class="bi bi-graph-up-arrow me-1"></i>추천도 {{ notice.importance_score }}</span>
+      </div>
+
+      <div class="detail-actions">
+        <a class="btn btn-light" href="{{ notice.url }}" target="_blank" rel="noopener">
+          <i class="bi bi-box-arrow-up-right me-1"></i>원문 열기
+        </a>
+        <a class="btn btn-hero-outline" href="{% url 'notices:notice_list' %}">
+          <i class="bi bi-arrow-left me-1"></i>목록
+        </a>
+        <button class="btn btn-hero-outline" type="button" data-copy-current-url>
+          <i class="bi bi-link-45deg me-1"></i>링크 복사
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <div class="detail-layout">
+    <article class="content-panel detail-main">
+      <section class="detail-section first">
+        <div class="section-heading compact">
+          <div>
+            <h2>AI 요약</h2>
+            <p>
+              {% if notice.ai_analysis_status == "success" %}
+                분석 완료
+              {% elif notice.ai_analysis_status == "failed" %}
+                분석 실패
+              {% elif notice.ai_analysis_status == "pending" %}
+                분석 대기
+              {% else %}
+                룰 기반 추천도 사용
+              {% endif %}
+            </p>
+          </div>
+        </div>
+
+        {% if notice.ai_summary %}
+          <div class="summary-box">{{ notice.ai_summary|linebreaksbr }}</div>
+        {% elif notice.ai_analysis_status == "failed" %}
+          <p class="text-secondary mb-0">AI 분석을 완료하지 못했습니다. 현재 추천도는 룰 기반 점수입니다.</p>
+        {% else %}
+          <p class="text-secondary mb-0">아직 AI 요약이 없습니다. 현재 추천도는 룰 기반 점수입니다.</p>
+        {% endif %}
+      </section>
+
+      <section class="detail-section">
+        <h2>공고 원문</h2>
+        {% if notice.content %}
+          <div class="notice-content">{{ notice.content|linebreaksbr }}</div>
+        {% elif notice.summary %}
+          <div class="notice-content">{{ notice.summary|linebreaksbr }}</div>
+        {% else %}
+          <p class="text-secondary mb-0">수집된 본문이 없습니다. 원문 링크에서 확인하세요.</p>
+        {% endif %}
+      </section>
+    </article>
+
+    <aside class="detail-side">
+      <section class="content-panel">
+        <div class="score-panel">
+          <span>추천도</span>
+          <strong>{{ notice.importance_score }}</strong>
+          <small>{{ notice.get_score_source_display }}</small>
+        </div>
+
+        <div class="side-divider"></div>
+
+        <h2 class="side-title">AI 태그</h2>
+        <div class="mb-3">
+          {% for tag in notice.ai_tags %}
+            <span class="tag-chip">{{ tag }}</span>
+          {% empty %}
+            <span class="text-secondary small">태그 없음</span>
+          {% endfor %}
+        </div>
+
+        <h2 class="side-title">추천 대상</h2>
+        <div>
+          {% for target in notice.recommended_for %}
+            <span class="target-chip">{{ target }}</span>
+          {% empty %}
+            <span class="text-secondary small">추천 대상 없음</span>
+          {% endfor %}
+        </div>
+      </section>
+
+      <section class="content-panel mt-3">
+        <h2 class="side-title">기관</h2>
+        <div class="fw-semibold">{{ notice.agency.name }}</div>
+        <a class="small text-break" href="{{ notice.agency.website_url }}" target="_blank" rel="noopener">
+          {{ notice.agency.website_url }}
+        </a>
+      </section>
+    </aside>
+  </div>
+{% endblock %}
