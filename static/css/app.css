@@ -417,13 +417,6 @@ a:hover {
   box-shadow: var(--app-shadow-soft);
 }
 
-.alert-header {
-  align-items: center;
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 1rem;
-}
-
 .alert-layout {
   align-items: start;
   display: grid;
@@ -431,8 +424,172 @@ a:hover {
   grid-template-columns: minmax(0, 1fr) 340px;
 }
 
+.alert-hero {
+  align-items: center;
+  background:
+    linear-gradient(90deg, rgba(18, 43, 28, .94), rgba(23, 74, 43, .82) 48%, rgba(46, 125, 50, .52)),
+    url("../img/agritech-hero.png?v=20260617-4");
+  background-position: center;
+  background-size: cover;
+  border: 1px solid rgba(255, 255, 255, .46);
+  border-radius: 8px;
+  box-shadow: var(--app-shadow);
+  color: #fff;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  margin-bottom: 1rem;
+  min-height: 270px;
+  overflow: hidden;
+  padding: 2rem;
+  position: relative;
+}
+
+.alert-hero::after {
+  background:
+    linear-gradient(rgba(255, 255, 255, .08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, .08) 1px, transparent 1px);
+  background-size: 34px 34px;
+  content: "";
+  inset: 0;
+  opacity: .18;
+  pointer-events: none;
+  position: absolute;
+}
+
+.alert-hero-content,
+.alert-hero-card {
+  position: relative;
+  z-index: 1;
+}
+
+.alert-hero .eyebrow {
+  color: #b8efbc;
+}
+
+.alert-hero h1 {
+  font-size: 2.35rem;
+  font-weight: 860;
+  line-height: 1.15;
+  margin: 0;
+  max-width: 720px;
+}
+
+.alert-hero p {
+  color: rgba(255, 255, 255, .82);
+  margin: .8rem 0 0;
+  max-width: 680px;
+}
+
+.alert-hero-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .55rem;
+  margin-top: 1.15rem;
+}
+
+.alert-hero-pills span {
+  align-items: center;
+  background: rgba(255, 255, 255, .12);
+  border: 1px solid rgba(255, 255, 255, .24);
+  border-radius: 8px;
+  display: inline-flex;
+  font-size: .82rem;
+  font-weight: 760;
+  gap: .38rem;
+  min-height: 34px;
+  padding: .4rem .62rem;
+}
+
+.alert-hero-card {
+  background: rgba(255, 255, 255, .14);
+  border: 1px solid rgba(255, 255, 255, .32);
+  border-radius: 8px;
+  box-shadow: 0 24px 50px rgba(0, 0, 0, .18);
+  justify-self: end;
+  padding: 1rem;
+  width: min(100%, 260px);
+}
+
+.mail-card-icon {
+  align-items: center;
+  background: rgba(255, 255, 255, .18);
+  border: 1px solid rgba(255, 255, 255, .28);
+  border-radius: 8px;
+  display: inline-flex;
+  font-size: 1.35rem;
+  height: 42px;
+  justify-content: center;
+  margin-bottom: .9rem;
+  width: 42px;
+}
+
+.alert-hero-card strong {
+  display: block;
+  font-size: 1.05rem;
+}
+
+.alert-hero-card p {
+  margin: .25rem 0 .85rem;
+}
+
+.mail-card-lines {
+  display: grid;
+  gap: .46rem;
+}
+
+.mail-card-lines span {
+  background: rgba(255, 255, 255, .34);
+  border-radius: 8px;
+  display: block;
+  height: 8px;
+}
+
+.mail-card-lines span:nth-child(2) {
+  width: 72%;
+}
+
+.mail-card-lines span:nth-child(3) {
+  width: 48%;
+}
+
 .alert-form-panel {
-  padding: 1.25rem;
+  padding: 1.35rem;
+}
+
+.alert-panel-heading {
+  align-items: center;
+  border-bottom: 1px solid var(--app-border);
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  margin-bottom: 1.1rem;
+  padding-bottom: 1rem;
+}
+
+.alert-panel-heading h2 {
+  font-size: 1.15rem;
+  font-weight: 820;
+  margin: 0;
+}
+
+.alert-panel-heading p {
+  color: var(--app-muted);
+  margin: .25rem 0 0;
+}
+
+.alert-panel-heading > span {
+  align-items: center;
+  background: #edf8ee;
+  border: 1px solid #cfe8d1;
+  border-radius: 8px;
+  color: var(--app-primary);
+  display: inline-flex;
+  flex: 0 0 auto;
+  font-size: 1.15rem;
+  height: 42px;
+  justify-content: center;
+  width: 42px;
 }
 
 .alert-form-panel .form-label {
@@ -445,6 +602,53 @@ a:hover {
   list-style: none;
   margin: .45rem 0 0;
   padding: 0;
+}
+
+.alert-field {
+  background: #fbfdfb;
+  border: 1px solid rgba(219, 231, 220, .92);
+  border-radius: 8px;
+  padding: .88rem;
+}
+
+.alert-field .form-text {
+  color: var(--app-muted);
+  font-size: .82rem;
+  margin-top: .5rem;
+}
+
+.alert-field small {
+  color: var(--app-muted);
+  font-weight: 700;
+}
+
+.alert-input-shell {
+  align-items: center;
+  background: #fff;
+  border: 1px solid rgba(213, 226, 215, .96);
+  border-radius: 8px;
+  display: flex;
+  min-height: 48px;
+  overflow: hidden;
+  transition: border-color .18s ease, box-shadow .18s ease;
+}
+
+.alert-input-shell:focus-within {
+  border-color: rgba(46, 125, 50, .38);
+  box-shadow: 0 0 0 .22rem rgba(76, 175, 80, .12);
+}
+
+.alert-input-shell i {
+  color: var(--app-primary);
+  flex: 0 0 auto;
+  font-size: 1.1rem;
+  padding-left: .85rem;
+}
+
+.alert-input-shell .form-control {
+  border: 0;
+  box-shadow: none;
+  min-height: 48px;
 }
 
 .agency-check-grid ul {
@@ -475,6 +679,13 @@ a:hover {
   box-shadow: 0 10px 24px rgba(46, 125, 50, .07);
 }
 
+.agency-check-grid li label:has(input:checked) {
+  background: #edf8ee;
+  border-color: rgba(46, 125, 50, .36);
+  color: var(--app-primary);
+  font-weight: 760;
+}
+
 .agency-check-grid input {
   accent-color: var(--app-primary);
 }
@@ -484,10 +695,15 @@ a:hover {
   width: 100%;
 }
 
-.alert-guide {
-  padding: 1.1rem;
+.alert-side-stack {
+  display: grid;
+  gap: 1rem;
   position: sticky;
   top: 86px;
+}
+
+.alert-guide {
+  padding: 1.1rem;
 }
 
 .alert-step {
@@ -525,6 +741,26 @@ a:hover {
   font-size: .84rem;
   grid-column: 2;
   margin: 0;
+}
+
+.alert-example {
+  padding: 1.1rem;
+}
+
+.alert-keyword-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .45rem;
+}
+
+.alert-keyword-cloud span {
+  background: #eef4ff;
+  border: 1px solid #dbe7ff;
+  border-radius: 8px;
+  color: var(--app-blue);
+  font-size: .8rem;
+  font-weight: 760;
+  padding: .42rem .6rem;
 }
 
 .filter-panel {
@@ -1342,8 +1578,17 @@ a:hover {
   }
 
   .detail-side,
-  .alert-guide {
+  .alert-side-stack {
     position: static;
+  }
+
+  .alert-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .alert-hero-card {
+    justify-self: stretch;
+    width: 100%;
   }
 
   .alert-layout {
