@@ -118,11 +118,12 @@
     }
   };
 
-  document.querySelectorAll("[data-copy-current-url]").forEach((button) => {
+  document.querySelectorAll("[data-copy-url], [data-copy-current-url]").forEach((button) => {
     button.addEventListener("click", async () => {
       const original = button.innerHTML;
+      const textToCopy = button.dataset.copyUrl || window.location.href;
       try {
-        await copyText(window.location.href);
+        await copyText(textToCopy);
         button.innerHTML = '<i class="bi bi-check2 me-1"></i>복사됨';
       } catch {
         button.innerHTML = '<i class="bi bi-exclamation-circle me-1"></i>실패';
