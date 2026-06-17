@@ -43,12 +43,31 @@
     </div>
   </section>
 
+  <section class="detail-quickbar motion-reveal" aria-label="공고 핵심 정보">
+    <div class="quickbar-item">
+      <span><i class="bi bi-building"></i>기관</span>
+      <strong>{{ notice.agency.name }}</strong>
+    </div>
+    <div class="quickbar-item">
+      <span><i class="bi bi-layers"></i>분류</span>
+      <strong>{{ notice.get_category_display }}</strong>
+    </div>
+    <div class="quickbar-item">
+      <span><i class="bi bi-calendar-check"></i>등록일</span>
+      <strong>{{ notice.posted_date|date:"Y-m-d" }}</strong>
+    </div>
+    <div class="quickbar-item">
+      <span><i class="bi bi-flag"></i>마감일</span>
+      <strong>{% if notice.deadline %}{{ notice.deadline|date:"Y-m-d" }}{% else %}상시/미정{% endif %}</strong>
+    </div>
+  </section>
+
   <div class="detail-layout">
     <article class="content-panel detail-main">
       <section class="detail-section first">
-        <div class="section-heading compact">
+        <div class="section-heading compact detail-section-heading">
           <div>
-            <h2>AI 요약</h2>
+            <h2><i class="bi bi-stars me-1"></i>AI 요약</h2>
             <p>
               {% if notice.ai_analysis_status == "success" %}
                 분석 완료
@@ -61,6 +80,9 @@
               {% endif %}
             </p>
           </div>
+          <span class="analysis-badge {% if notice.ai_analysis_status == 'success' %}analysis-success{% elif notice.ai_analysis_status == 'failed' %}analysis-failed{% endif %}">
+            {{ notice.get_ai_analysis_status_display }}
+          </span>
         </div>
 
         {% if notice.ai_summary %}
@@ -73,7 +95,15 @@
       </section>
 
       <section class="detail-section">
-        <h2>공고 원문</h2>
+        <div class="section-heading compact detail-section-heading">
+          <div>
+            <h2><i class="bi bi-file-text me-1"></i>공고 원문</h2>
+            <p>{{ notice.agency.name }}에서 수집한 원문 내용입니다.</p>
+          </div>
+          <a class="btn btn-sm btn-outline-success" href="{{ notice.url }}" target="_blank" rel="noopener">
+            <i class="bi bi-box-arrow-up-right me-1"></i>원문
+          </a>
+        </div>
         {% if notice.content %}
           <div class="notice-content">{{ notice.content|linebreaksbr }}</div>
         {% elif notice.summary %}
@@ -87,15 +117,20 @@
     <aside class="detail-side">
       <section class="content-panel">
         <div class="score-panel">
-          <span>추천도</span>
-          <strong>{{ notice.importance_score }}</strong>
-          <small>{{ notice.get_score_source_display }}</small>
+          <div>
+            <span>추천도</span>
+            <strong>{{ notice.importance_score }}</strong>
+            <small>{{ notice.get_score_source_display }}</small>
+          </div>
+          <div class="score-ring" style="--score: {{ notice.importance_score }}%;">
+            <span>{{ notice.importance_score }}</span>
+          </div>
         </div>
 
         <div class="side-divider"></div>
 
-        <h2 class="side-title">AI 태그</h2>
-        <div class="mb-3">
+        <h2 class="side-title"><i class="bi bi-tags me-1"></i>AI 태그</h2>
+        <div class="side-chip-group mb-3">
           {% for tag in notice.ai_tags %}
             <span class="tag-chip">{{ tag }}</span>
           {% empty %}
@@ -103,8 +138,8 @@
           {% endfor %}
         </div>
 
-        <h2 class="side-title">추천 대상</h2>
-        <div>
+        <h2 class="side-title"><i class="bi bi-person-check me-1"></i>추천 대상</h2>
+        <div class="side-chip-group">
           {% for target in notice.recommended_for %}
             <span class="target-chip">{{ target }}</span>
           {% empty %}
@@ -114,11 +149,28 @@
       </section>
 
       <section class="content-panel mt-3">
-        <h2 class="side-title">기관</h2>
-        <div class="fw-semibold">{{ notice.agency.name }}</div>
-        <a class="small text-break" href="{{ notice.agency.website_url }}" target="_blank" rel="noopener">
-          {{ notice.agency.website_url }}
-        </a>
+        <h2 class="side-title"><i class="bi bi-building me-1"></i>기관</h2>
+        <div class="agency-profile">
+          <span class="agency-profile-mark">{{ notice.agency.name|slice:":1" }}</span>
+          <div>
+            <div class="fw-semibold">{{ notice.agency.name }}</div>
+            <a class="small text-break" href="{{ notice.agency.website_url }}" target="_blank" rel="noopener">
+              {{ notice.agency.website_url }}
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <section class="content-panel mt-3">
+        <h2 class="side-title"><i class="bi bi-lightning-charge me-1"></i>빠른 작업</h2>
+        <div class="detail-side-actions">
+          <a class="btn btn-success" href="{{ notice.url }}" target="_blank" rel="noopener">
+            <i class="bi bi-box-arrow-up-right me-1"></i>원문 열기
+          </a>
+          <button class="btn btn-outline-success" type="button" data-copy-url="{{ notice.url }}">
+            <i class="bi bi-link-45deg me-1"></i>원문 링크 복사
+          </button>
+        </div>
       </section>
     </aside>
   </div>
