@@ -407,14 +407,40 @@ class EmailSubscriptionAdmin(admin.ModelAdmin):
 
 @admin.register(EmailNotificationLog)
 class EmailNotificationLogAdmin(admin.ModelAdmin):
-    list_display = ("created_at", "subscription", "notice", "status", "sent_at")
+    list_display = ("created_at", "subscription", "notice", "status", "matched_keywords_display", "sent_at")
     list_filter = ("status", "created_at", "sent_at", "notice__agency")
     search_fields = ("subscription__email", "notice__title", "matched_keywords", "error_message")
     raw_id_fields = ("subscription", "notice")
     readonly_fields = ("subscription", "notice", "status", "matched_keywords", "error_message", "sent_at", "created_at")
+    actions = ("delete_selected_logs", "delete_failed_logs", "delete_all_logs")
 
     def has_add_permission(self, request):
         return False
+
+    @admin.display(description="Keywords")
+    def matched_keywords_display(self, obj: EmailNotificationLog):
+        if not obj.matched_keywords:
+            return "-"
+        return ", ".join(str(keyword) for keyword in obj.matched_keywords)
+
+    @admin.action(description="Delete selected email logs")
+    def delete_selected_logs(self, request, queryset):
+        count = queryset.count()
+        queryset.delete()
+        self.message_user(request, f"Deleted {count} email notification logs.", level=messages.WARNING)
+
+    @admin.action(description="Delete failed email logs")
+    def delete_failed_logs(self, request, queryset):
+        failed_logs = queryset.filter(status=EmailNotificationLog.STATUS_FAILED)
+        count = failed_logs.count()
+        failed_logs.delete()
+        self.message_user(request, f"Deleted {count} failed email notification logs.", level=messages.WARNING)
+
+    @admin.action(description="Delete all email logs")
+    def delete_all_logs(self, request, queryset):
+        count = EmailNotificationLog.objects.count()
+        EmailNotificationLog.objects.all().delete()
+        self.message_user(request, f"Deleted all {count} email notification logs.", level=messages.WARNING)
 
 
 class NoticeInline(admin.TabularInline):
