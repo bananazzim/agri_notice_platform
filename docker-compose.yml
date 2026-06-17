@@ -91,6 +91,8 @@ services:
     container_name: agri_notice_scheduler
     restart: unless-stopped
     command: python manage.py start_scheduler
+    healthcheck:
+      disable: true
     environment:
       DJANGO_SETTINGS_MODULE: config.settings.production
       DEBUG: ${DEBUG:-False}
