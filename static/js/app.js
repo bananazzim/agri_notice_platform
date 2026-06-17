@@ -91,11 +91,38 @@
     });
   });
 
+  const copyText = async (text) => {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text);
+      return;
+    }
+
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    textarea.setAttribute("readonly", "");
+    textarea.style.position = "fixed";
+    textarea.style.left = "-9999px";
+    textarea.style.top = "0";
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+    textarea.setSelectionRange(0, textarea.value.length);
+
+    try {
+      const copied = document.execCommand("copy");
+      if (!copied) {
+        throw new Error("Copy command was rejected.");
+      }
+    } finally {
+      textarea.remove();
+    }
+  };
+
   document.querySelectorAll("[data-copy-current-url]").forEach((button) => {
     button.addEventListener("click", async () => {
       const original = button.innerHTML;
       try {
-        await navigator.clipboard.writeText(window.location.href);
+        await copyText(window.location.href);
         button.innerHTML = '<i class="bi bi-check2 me-1"></i>복사됨';
       } catch {
         button.innerHTML = '<i class="bi bi-exclamation-circle me-1"></i>실패';
